@@ -1,0 +1,35 @@
+/* themeToggle.css
+   Drop this on ANY page's root element via className="theme-scope"
+   and add data-pqtheme={theme} to that same element.
+   Reuses the same CSS variable names as the rest of your app
+   (--bg, --bg2, --t, --f, etc) but scoped locally, so it never
+   touches the global ThemeContext variables.
+*/
+
+.theme-scope{transition:background .2s ease,color .2s ease}
+
+.pq-theme-toggle{display:flex;align-items:center;gap:3px;background:var(--bg2);border:1px solid var(--b);border-radius:999px;padding:3px}
+.pq-theme-btn{
+  width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;
+  font-size:14px;display:flex;align-items:center;justify-content:center;opacity:.5;
+  transition:opacity .15s ease,background .15s ease,transform .15s ease;
+}
+.pq-theme-btn:hover{opacity:.85;transform:scale(1.05)}
+.pq-theme-btn.active{opacity:1;background:var(--bg4);box-shadow:0 0 0 1px var(--b)}
+
+.theme-scope[data-pqtheme="dark"]{
+  --bg:#0b0b10;--bg2:#13131a;--bg3:#1a1a24;--bg4:#21212e;--b:#1e1e2c;
+  --t:#f0f0f0;--t2:#9ca3af;--f:#d946ef;--fl:#f472eb;--card:rgba(255,255,255,.03);
+  --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+.theme-scope[data-pqtheme="light"]{
+  --bg:#f7f7fa;--bg2:#ffffff;--bg3:#f1f1f5;--bg4:#e8e8ef;--b:#e2e2ea;
+  --t:#1a1a22;--t2:#6b6b78;--f:#c026d3;--fl:#d946ef;--card:rgba(0,0,0,.03);
+  --shadow:0 8px 24px rgba(20,20,40,.08);
+}
+.theme-scope[data-pqtheme="yellow"]{
+  --bg:#f4ecd8;--bg2:#ede0c4;--bg3:#e8dab8;--bg4:#ddc9a0;--b:#d4c2a0;
+  --t:#3a2e1f;--t2:#6b5a42;--f:#b45309;--fl:#d97706;--card:rgba(120,90,40,.05);
+  --shadow:0 8px 24px rgba(120,90,40,.15);
+}
+.theme-scope{background:var(--bg,transparent);color:var(--t,inherit)}

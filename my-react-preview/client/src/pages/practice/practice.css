@@ -1,0 +1,349 @@
+/* practice.css — SpeedMock Practice Question Bank
+   ────────────────────────────────────────────────
+   Design direction: the exam hall, not a generic gamified app.
+   - Side panel reads as a digitized OMR answer sheet (the real bubble
+     sheets SSC students fill by hand), not abstract numbered tiles.
+   - Bebas Neue for headlines (matches bookmark.jsx — already part of
+     the app's voice), tabular numerals for timer/stats/scores.
+   - One playful signature (the streak meter) — everything else stays
+     disciplined and uses the app's real theme variables throughout.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+.pq-page,.pq-session{min-height:100vh;width:100%;color:var(--t)}
+.pq-content{max-width:1100px;margin:0 auto;padding:40px}
+.pq-session .pq-content{max-width:1200px;padding:30px 40px}
+
+.pq-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:12px;flex-wrap:wrap}
+.pq-top-row .pq-back{margin-bottom:0}
+
+.pq-theme-toggle{display:flex;align-items:center;gap:3px;background:var(--bg2);border:1px solid var(--b);border-radius:999px;padding:3px}
+.pq-theme-btn{
+  width:32px;height:32px;border-radius:50%;border:none;background:transparent;cursor:pointer;
+  font-size:14px;display:flex;align-items:center;justify-content:center;opacity:.5;
+  transition:opacity .15s ease,background .15s ease,transform .15s ease;
+}
+.pq-theme-btn:hover{opacity:.85;transform:scale(1.05)}
+.pq-theme-btn.active{opacity:1;background:var(--bg4);box-shadow:0 0 0 1px var(--b)}
+
+/* ── Tier toggle (Tier 1 / Tier 2) ── */
+.pq-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.pq-tier-toggle{display:flex;align-items:center;gap:3px;background:var(--bg2);border:1px solid var(--b);border-radius:999px;padding:3px;flex-shrink:0}
+.pq-tier-btn{
+  border:none;background:transparent;cursor:pointer;color:var(--t2);
+  font-size:13px;font-weight:600;padding:7px 16px;border-radius:999px;
+  transition:opacity .15s ease,background .15s ease,color .15s ease;
+}
+.pq-tier-btn:hover{color:var(--t)}
+.pq-tier-btn.active{background:var(--f);color:#fff}
+
+/* ── Independent 3-way theme for practice pages only ──────────
+   Scoped to [data-pqtheme] on the page root so it never touches
+   the app-wide ThemeContext variables — same variable names as the
+   rest of the app, but redefined locally. CSS custom properties
+   inherit down the DOM naturally, so every .pq-* rule below picks
+   these up automatically without any extra wiring. */
+.pq-page[data-pqtheme="dark"],.pq-session[data-pqtheme="dark"]{
+  --bg:#0b0b10;--bg2:#13131a;--bg3:#1a1a24;--bg4:#21212e;--b:#1e1e2c;
+  --t:#f0f0f0;--t2:#9ca3af;--f:#d946ef;--fl:#f472eb;--card:rgba(255,255,255,.03);
+  --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+.pq-page[data-pqtheme="light"],.pq-session[data-pqtheme="light"]{
+  --bg:#f7f7fa;--bg2:#ffffff;--bg3:#f1f1f5;--bg4:#e8e8ef;--b:#e2e2ea;
+  --t:#1a1a22;--t2:#6b6b78;--f:#c026d3;--fl:#d946ef;--card:rgba(0,0,0,.03);
+  --shadow:0 8px 24px rgba(20,20,40,.08);
+}
+.pq-page[data-pqtheme="yellow"],.pq-session[data-pqtheme="yellow"]{
+  --bg:#f4ecd8;--bg2:#ede0c4;--bg3:#e8dab8;--bg4:#ddc9a0;--b:#d4c2a0;
+  --t:#3a2e1f;--t2:#6b5a42;--f:#b45309;--fl:#d97706;--card:rgba(120,90,40,.05);
+  --shadow:0 8px 24px rgba(120,90,40,.15);
+}
+.pq-page,.pq-session{background:var(--bg,transparent);transition:background .2s ease,color .2s ease}
+
+/* ── Back button ── */
+.pq-back{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--b);color:var(--f);
+  cursor:pointer;font-size:13px;font-weight:600;margin-bottom:28px;
+  padding:8px 16px 8px 12px;border-radius:999px;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+.pq-back::before{content:"←";display:inline-block;transition:transform .18s ease}
+.pq-back:hover{border-color:var(--f);background:rgba(217,70,239,.1);transform:translateX(-2px)}
+.pq-back:hover::before{transform:translateX(-3px)}
+
+/* ── Hero header ── */
+.pq-hero{margin-bottom:32px}
+.pq-hero-eyebrow{
+  font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--f);margin-bottom:8px;
+}
+.pq-h1{
+  font-family:'Bebas Neue',sans-serif;font-size:42px;font-weight:400;letter-spacing:.5px;
+  line-height:1.05;margin:0 0 10px;color:var(--t);
+}
+.pq-sub{color:var(--t2);margin:0;font-size:15px;max-width:520px;line-height:1.5}
+.pq-loading,.pq-error{padding:60px;text-align:center;color:var(--t2)}
+
+.pq-empty{text-align:center;padding:70px 20px;color:var(--t2)}
+.pq-empty-icon{font-size:40px;margin-bottom:14px}
+.pq-empty-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--t);margin-bottom:6px}
+.pq-empty-body{font-size:14px;max-width:340px;margin:0 auto;line-height:1.5}
+
+/* ── Subject "exam ticket" cards ── */
+.pq-subject-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.pq-ticket{
+  position:relative;overflow:hidden;cursor:pointer;
+  background:var(--bg2);border:1px solid var(--b);border-radius:18px;padding:22px;
+  animation:pq-rise .45s cubic-bezier(.2,.8,.2,1) both;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),border-color .22s ease,box-shadow .22s ease;
+}
+.pq-ticket::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--accent);opacity:.7;
+}
+.pq-ticket::after{
+  /* perforated "ticket stub" notches */
+  content:"";position:absolute;left:-8px;bottom:54px;width:16px;height:16px;
+  border-radius:50%;background:var(--bg);border:1px solid var(--b);
+}
+.pq-ticket:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:var(--shadow)}
+.pq-ticket-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.pq-ticket-icon{font-size:28px}
+.pq-ticket-count{
+  font-variant-numeric:tabular-nums;font-weight:700;font-size:20px;color:var(--accent);
+  display:flex;align-items:baseline;gap:3px;
+}
+.pq-ticket-count small{font-size:11px;font-weight:600;color:var(--t2)}
+.pq-ticket-name{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:.5px;color:var(--t);margin-bottom:4px}
+.pq-ticket-meta{font-size:12.5px;color:var(--t2);margin-bottom:18px}
+.pq-ticket-stub{
+  display:flex;align-items:center;justify-content:space-between;
+  border-top:1px dashed var(--b);padding-top:14px;
+  font-size:13px;font-weight:600;color:var(--accent);
+}
+.pq-ticket-arrow{transition:transform .18s ease}
+.pq-ticket:hover .pq-ticket-arrow{transform:translateX(4px)}
+
+@keyframes pq-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── Topics: sequential checklist ── */
+.pq-topic-list{display:flex;flex-direction:column;gap:10px}
+.pq-topic-row{
+  display:flex;align-items:center;gap:18px;cursor:pointer;
+  background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:16px 20px;
+  animation:pq-rise .4s ease both;
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.pq-topic-row:hover{border-color:var(--f);transform:translateX(4px);box-shadow:var(--shadow)}
+.pq-topic-num{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--m,var(--t2));
+  width:32px;flex-shrink:0;
+}
+.pq-topic-info{flex:1;min-width:0}
+.pq-topic-name{font-weight:700;margin-bottom:3px;color:var(--t)}
+.pq-topic-meta{font-size:12.5px;color:var(--t2);font-variant-numeric:tabular-nums}
+
+.pq-topic-ring{position:relative;width:40px;height:40px;flex-shrink:0}
+.pq-topic-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pq-ring-track{fill:none;stroke:var(--b);stroke-width:3}
+.pq-ring-fill{
+  fill:none;stroke:var(--f);stroke-width:3;stroke-linecap:round;
+  stroke-dasharray:106.8;
+  stroke-dashoffset:calc(106.8 - (106.8 * var(--pct)) / 100);
+  transition:stroke-dashoffset .4s ease;
+}
+.pq-ring-label{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:var(--t);font-variant-numeric:tabular-nums;
+}
+
+.pq-topic-status{
+  font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:5px 12px;border-radius:999px;flex-shrink:0;color:var(--t2);background:var(--bg3);
+}
+.pq-topic-status.active{color:#f59e0b;background:rgba(245,158,11,.12)}
+.pq-topic-status.done{color:#22c55e;background:rgba(34,197,94,.12)}
+
+/* ── Practice session layout ── */
+.pq-session-layout{display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start}
+
+.pq-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.pq-toolbar-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pq-topic-title{font-weight:700;color:var(--t2);font-size:13px}
+
+.pq-streak{
+  display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;
+  color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);
+  border-radius:999px;padding:3px 10px 3px 8px;
+  animation:pq-streak-pop .3s ease;
+}
+.pq-streak-flame{font-size:13px;filter:drop-shadow(0 0 4px rgba(245,158,11,.6))}
+@keyframes pq-streak-pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+
+.pq-toolbar-right{display:flex;align-items:center;gap:12px}
+.pq-timer-toggle{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none;color:var(--t)}
+.pq-timer-display{
+  font-variant-numeric:tabular-nums;font-weight:700;background:var(--bg2);
+  border:1px solid var(--b);border-radius:8px;padding:4px 10px;font-size:14px;color:var(--f);
+}
+.pq-bookmark-btn{
+  background:var(--bg2);border:1px solid var(--b);border-radius:8px;width:34px;height:34px;
+  cursor:pointer;font-size:16px;transition:transform .18s ease,border-color .18s ease;
+}
+.pq-bookmark-btn:hover{transform:scale(1.08);border-color:#f59e0b}
+.pq-bookmark-btn.active{border-color:#f59e0b;background:rgba(245,158,11,.12)}
+
+/* ── Progress track ── */
+.pq-progress-track{height:4px;border-radius:2px;background:var(--bg3);margin-bottom:18px;overflow:hidden}
+.pq-progress-fill{height:100%;background:linear-gradient(90deg,var(--f),var(--fl,var(--f)));transition:width .35s ease}
+
+/* ── Question card ── */
+.pq-question-card{
+  position:relative;background:var(--bg2);border:1px solid var(--b);border-radius:20px;
+  padding:30px;box-shadow:var(--shadow);
+  animation:pq-fade-in .25s ease both;
+}
+@keyframes pq-fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.pq-difficulty-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:18px}
+.pq-diff-easy{background:rgba(34,197,94,.15);color:#22c55e}
+.pq-diff-medium{background:rgba(245,158,11,.15);color:#f59e0b}
+.pq-diff-hard{background:rgba(239,68,68,.15);color:#ef4444}
+
+.pq-question-text{font-size:18px;line-height:1.65;margin-bottom:26px;color:var(--t);font-weight:500}
+.pq-question-num{
+  font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--f);
+  margin-right:10px;vertical-align:2px;
+}
+
+/* ── Stamp feedback (✓ / ✗) ── */
+.pq-stamp{
+  position:absolute;top:24px;right:28px;width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;
+  animation:pq-stamp-in .55s cubic-bezier(.34,1.56,.64,1) forwards;
+  pointer-events:none;
+}
+.pq-stamp-correct{background:rgba(34,197,94,.15);color:#22c55e;border:2px solid #22c55e}
+.pq-stamp-incorrect{background:rgba(239,68,68,.15);color:#ef4444;border:2px solid #ef4444}
+@keyframes pq-stamp-in{
+  0%{transform:scale(2.2) rotate(-12deg);opacity:0}
+  55%{transform:scale(.92) rotate(2deg);opacity:1}
+  75%{transform:scale(1.05) rotate(-1deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+
+.pq-options{display:flex;flex-direction:column;gap:10px}
+.pq-option{
+  display:flex;align-items:center;gap:12px;padding:15px 16px;border-radius:12px;
+  border:1.5px solid var(--b);cursor:pointer;color:var(--t);font-size:15px;
+  transition:border-color .15s ease,background .15s ease,transform .1s ease;
+}
+.pq-option:hover{border-color:var(--f);transform:translateX(2px)}
+.pq-option.selected{border-color:var(--f);background:var(--card)}
+.pq-option.correct{border-color:#22c55e;background:rgba(34,197,94,.1)}
+.pq-option.incorrect{border-color:#ef4444;background:rgba(239,68,68,.1)}
+.pq-option-letter{
+  width:28px;height:28px;border-radius:50%;background:var(--bg4);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  flex-shrink:0;color:var(--t);transition:background .15s ease,color .15s ease;
+}
+.pq-option.correct .pq-option-letter{background:#22c55e;color:#06150c}
+.pq-option.incorrect .pq-option-letter{background:#ef4444;color:#1a0606}
+
+.pq-explanation{margin-top:18px;padding:14px 16px;background:var(--bg3);border-radius:10px;font-size:14px;color:var(--t2);line-height:1.55}
+.pq-explanation strong{color:var(--t)}
+
+.pq-nav-buttons{display:flex;justify-content:space-between;margin-top:26px;gap:12px}
+.pq-nav-buttons button{
+  padding:11px 22px;border-radius:10px;border:1px solid var(--b);background:var(--bg3);
+  cursor:pointer;font-size:14px;font-weight:600;color:var(--t);
+  transition:border-color .18s ease,transform .18s ease;
+}
+.pq-nav-buttons button:hover:not(:disabled){border-color:var(--f);transform:translateY(-1px)}
+.pq-nav-buttons button:disabled{opacity:.35;cursor:not-allowed}
+
+.pq-btn-primary{
+  background:linear-gradient(135deg,var(--f),var(--fl,var(--f)))!important;
+  border:none!important;color:#fff!important;font-weight:700!important;
+}
+.pq-btn-primary:hover:not(:disabled){filter:brightness(1.08)}
+.pq-btn-ghost{background:var(--bg3);border:1px solid var(--b);color:var(--t);padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;transition:border-color .18s ease}
+.pq-btn-ghost:hover{border-color:var(--f)}
+
+/* ── Side panel: OMR answer sheet ── */
+.pq-side-panel{
+  background:var(--bg2);border:1px solid var(--b);border-radius:18px;padding:20px;
+  position:sticky;top:20px;box-shadow:var(--shadow);
+}
+.pq-side-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.pq-side-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;color:var(--t)}
+.pq-side-score{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;color:var(--f)}
+
+.pq-omr-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.pq-omr-bubble{
+  aspect-ratio:1;border-radius:50%;border:2px solid var(--b);background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:12px;font-weight:700;color:var(--t2);font-variant-numeric:tabular-nums;
+  transition:transform .12s ease,border-color .12s ease,background .12s ease,color .12s ease;
+}
+.pq-omr-bubble:hover{transform:scale(1.1);border-color:var(--f)}
+.pq-omr-bubble.current{border-color:var(--f);border-width:2.5px;box-shadow:0 0 0 4px rgba(217,70,239,.16);color:var(--t)}
+.pq-omr-bubble.correct{background:#22c55e;border-color:#22c55e;color:#06150c}
+.pq-omr-bubble.incorrect{background:#ef4444;border-color:#ef4444;color:#1a0606}
+
+.pq-side-legend{margin-top:18px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--t2)}
+.pq-side-legend div{display:flex;align-items:center;gap:8px}
+.pq-legend-dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--b);display:inline-block;background:var(--bg3)}
+.pq-legend-dot.current{border-color:var(--f);box-shadow:0 0 0 3px rgba(217,70,239,.16)}
+.pq-legend-dot.correct{background:#22c55e;border-color:#22c55e}
+.pq-legend-dot.incorrect{background:#ef4444;border-color:#ef4444}
+
+.pq-side-finish{width:100%;margin-top:18px;padding:12px;text-align:center}
+
+/* ── Completion summary screen ── */
+.pq-summary-card{
+  max-width:480px;margin:60px auto;text-align:center;
+  background:var(--bg2);border:1px solid var(--b);border-radius:24px;padding:44px 36px;
+  box-shadow:var(--shadow);animation:pq-rise .4s ease both;
+}
+.pq-summary-icon{font-size:48px;margin-bottom:16px}
+.pq-summary-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.5px;color:var(--t);margin:0 0 10px}
+.pq-summary-sub{color:var(--t2);font-size:14.5px;line-height:1.5;margin:0 0 30px}
+.pq-summary-stats{display:flex;justify-content:center;gap:28px;margin-bottom:32px}
+.pq-summary-stat{text-align:center}
+.pq-summary-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--f);font-variant-numeric:tabular-nums}
+.pq-summary-stat div:last-child{font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pq-summary-actions{display:flex;gap:12px;justify-content:center}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .pq-session-layout{grid-template-columns:1fr}
+  .pq-side-panel{position:static}
+  .pq-subject-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .pq-subject-grid{grid-template-columns:1fr}
+  .pq-page,.pq-session{padding:20px 16px}
+  .pq-h1{font-size:32px}
+  .pq-question-card{padding:20px}
+  .pq-omr-grid{grid-template-columns:repeat(6,1fr)}
+  .pq-bookmark-btn{width:42px;height:42px;font-size:18px}
+  .pq-option{padding:14px}
+  .pq-topic-row{flex-wrap:wrap}
+  .pq-topic-status{order:1;margin-left:auto}
+  .pq-nav-buttons button{flex:1;padding:13px 14px}
+  .pq-toolbar-right{width:100%;justify-content:space-between}
+  .pq-summary-card{margin:30px auto;padding:32px 22px}
+  .pq-summary-stats{gap:18px}
+  .pq-summary-actions{flex-direction:column}
+}
+@media(max-width:380px){
+  .pq-omr-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .pq-ticket,.pq-topic-row,.pq-question-card,.pq-stamp,.pq-streak,.pq-summary-card{animation:none!important}
+  .pq-ticket,.pq-topic-row,.pq-option,.pq-omr-bubble,.pq-bookmark-btn{transition:none!important}
+}

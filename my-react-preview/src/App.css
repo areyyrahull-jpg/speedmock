@@ -1,0 +1,49 @@
+/* App.css — only app-shell layout rules live here.
+   Page-specific styles go in each page's own <style> block. */
+
+/* ── App shell ───────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  background: #16171C;
+}
+
+/* ── Main content area (sits next to a sidebar if present) ───── */
+.app-main {
+  flex: 1;
+  min-width: 0;           /* prevents flex child from overflowing */
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── Page wrapper — used by pages that want consistent padding ── */
+.page-wrapper {
+  width: 100%;
+  flex: 1;
+  padding: 0;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar {
+  flex-shrink: 0;
+  background: #1C1E25;
+  border-right: 1px solid #34363F;
+}
+
+/* ── Common card ─────────────────────────────────────────────── */
+.card {
+  background: #202229;
+  border: 1px solid #34363F;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+/* ── Responsive helpers ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+}
+@media (min-width: 769px) {
+  .hide-desktop { display: none !important; }
+}
