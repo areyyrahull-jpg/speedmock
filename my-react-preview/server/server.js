@@ -50,6 +50,11 @@ app.use("/api/goal",     goalRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/referral", referralRoutes);
 app.use("/api/admin",    require("./src/routes/admin.routes"));  // ← ADD THIS
+
+
+app.get("/", (req, res) => {
+  res.json({ status: "SpeedMock API running" });
+});
 // ─── HEALTH CHECK ─────────────────────────────────────────────────
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString(), uptime: process.uptime() });
