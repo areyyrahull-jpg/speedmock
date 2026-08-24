@@ -263,7 +263,7 @@ export default function App() {
         <LanguageProvider>
           <ExamProvider>
             <GoalProvider>
-              <ScrollToTop>
+              <ScrollToTop />
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<SpeedMockLogin />} />
@@ -310,8 +310,8 @@ export default function App() {
                 <Route path="/testhistory" element={<TestHistoryPage />} />
                 <Route path="/paperspage" element={<PapersPage />} />
                 <Route path="/admin" element={<AdminGuard />} />
-              </Routes
-              <ScrollToTop />
+              </Routes>
+        
             </GoalProvider>
           </ExamProvider>
         </LanguageProvider>
