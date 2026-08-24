@@ -311,7 +311,7 @@ export default function App() {
                 <Route path="/paperspage" element={<PapersPage />} />
                 <Route path="/admin" element={<AdminGuard />} />
               </Routes
-              </ScrollToTop>
+              <ScrollToTop />
             </GoalProvider>
           </ExamProvider>
         </LanguageProvider>
