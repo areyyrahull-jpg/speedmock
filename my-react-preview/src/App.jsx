@@ -47,7 +47,7 @@ import ProgressTracker from "../client/src/components/analytics/progress";
 import TestHistoryPage from "../client/src/components/home/test/testhistory";
 import { PapersPage } from "../client/src/components/home/test/paperspage";
 import AdminPanel from "../client/src/components/Admin/AdminPanel";
-import ScrollToTop from "./components/ScrollToTop";
+import ScrollToTop from "../client/src/components/ScrollToTop";
 
 
 
