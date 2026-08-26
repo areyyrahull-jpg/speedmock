@@ -7,6 +7,12 @@ import Sitemap from 'vite-plugin-sitemap'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+
+   Sitemap({ 
+      hostname: 'https://speedmock.me', // Replace with your live URL
+      dynamicRoutes: ['/about', '/contact', '/services'] // Add your pages here
+    }),
+     
 server: {
   host: "0.0.0.0",
   port: 5173,
@@ -19,10 +25,7 @@ server: {
     clientPort: 443,
   },
   
- Sitemap({ 
-      hostname: 'https://speedmock.me', // Replace with your live URL
-      dynamicRoutes: ['/about', '/contact', '/services'] // Add your pages here
-    }),
+
    
   proxy: {
     "/api": {
