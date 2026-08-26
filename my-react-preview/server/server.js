@@ -78,10 +78,11 @@ app.use((err, req, res, next) => {
 
 // ─── START ────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 8080;
+console.log("Starting server, PORT =", PORT);
 app.listen(PORT, () => {
-  
-  
-  
+  console.log(`✅ Server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.error("❌ Failed to bind port:", err);
 });
 
 
