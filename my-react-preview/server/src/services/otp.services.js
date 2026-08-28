@@ -35,7 +35,7 @@ const sendSMS = async (mobile, message) => {
       flow_id: MSG91_FLOW_ID,
       sender: MSG91_SENDER_ID,
       mobiles: `91${mobile}`,
-      OTP: otp, // must match the variable name used inside your MSG91 flow template
+      num: otp, // must match the variable name used inside your MSG91 flow template
     };
 
     const res = await axios.post(
