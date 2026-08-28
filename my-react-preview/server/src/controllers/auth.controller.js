@@ -165,7 +165,13 @@ const register = async (req, res) => {
 
     const user = insertResult.rows[0];
     await pool.query("INSERT INTO free_credits (user_id, credits_remaining) VALUES ($1, 2)", [user.id]);
+await pool.query("INSERT INTO free_credits (user_id, credits_remaining) VALUES ($1, 2)", [user.id]);
 
+await pool.query(
+  `INSERT INTO subscriptions (user_id, plan_name, status, starts_at)
+   VALUES ($1, NULL, 'trial', NOW())`,
+  [user.id]
+);
     let referralResult = null;
     if (referralCode) {
       referralResult = await applyReferralCode(user.id, referralCode);
