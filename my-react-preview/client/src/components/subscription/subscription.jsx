@@ -7,6 +7,7 @@ import Footer from "../common/footer";
 /* ─── PLANS CONFIG ─────────────────────────────────────────────── */
 // Every plan gets the same core feature set — plans only differ by
 // duration and how many devices can be logged in at once.
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const CORE_PERKS = [
   "Analytical Dashboard",
   "PYQ Test Series",
@@ -429,7 +430,7 @@ export default function Subscription() {
 
     try {
       // ── 1. Create Razorpay order on backend ─────────────────
-      const res = await fetch("/api/payment/create-order", {  // singular — matches payment_routes.js
+     const res = await fetch(`${API_URL}/payment/create-order`, { // singular — matches payment_routes.js
         method: "POST",
         headers: authHeaders,
         body: JSON.stringify({ planId: plan.id }), // userId comes from JWT on backend
@@ -454,7 +455,7 @@ export default function Subscription() {
 
         handler: async function (response) {
           // ── 3. Verify payment signature on backend ───────────
-          const verifyRes = await fetch("/api/payment/verify", {  // singular — matches payment_routes.js
+          const verifyRes = await fetch(`${API_URL}/payment/verify`, {  // singular — matches payment_routes.js
             method: "POST",
             headers: authHeaders,
             body: JSON.stringify({
