@@ -21,7 +21,7 @@ import { useAnalytics } from "../../services/useanalytics";
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:#0b0b10;color:#f0f0f0}
+body{font-family:'Outfit',sans-serif;}
 :root{--bg:#0b0b10;--bg2:#13131a;--bg3:#1a1a24;--bg4:#21212e;--b:#1e1e2c;
 --f:#e91e8c;--fl:#ff3aaa;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--blue:#0ea5e9;--purple:#a855f7;
 --t:#f0f0f0;--m:#7a7a90;--m2:#3a3a50}
