@@ -19,6 +19,7 @@ function OtpStep({
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const refs = useRef([]);
+  const submittingRef = useRef(false);
 
   useEffect(() => { refs.current[0]?.focus(); }, []);
 
@@ -43,7 +44,8 @@ function OtpStep({
     refs.current[Math.min(p.length,5)]?.focus();
   };
 
-  const verify = async () => {
+ const verify = async () => {
+  if (submittingRef.current) return;   // ← ADD THIS LINE
 
   const otpCode = otp.join("");
 
@@ -52,20 +54,16 @@ function OtpStep({
     return;
   }
 
+  submittingRef.current = true;   // ← ADD THIS LINE
   try {
     setLoading(true);
-
-    // Goes through AuthContext -> authService.register(), which both
-    // calls POST /api/auth/register AND stores the token/user under the
-    // correct localStorage keys AND updates context state (user/isAuthenticated).
     await registerUser(name, phone, password, email, otpCode, referralCode);
-
     onSuccess();
   } catch (err) {
-    
     setErr(err.message);
   } finally {
     setLoading(false);
+    submittingRef.current = false;   // ← ADD THIS LINE
   }
 };
 
