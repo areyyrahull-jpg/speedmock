@@ -689,6 +689,19 @@ router.post("/attempts/:attemptId/submit", requireAuth, async (req, res) => {
 
   if (updateError) return res.status(500).json({ error: updateError.message });
 
+
+// 5c. Decrement the user's free trial test credit (floor at 0, never
+  // negative). This is what useSubscription.js reads to compute
+  // testsLocked — without this, credits_remaining never moves and tests
+  // never lock after the free trial is used up. Applies to every test type.
+  try {
+    await pool.query(
+      `UPDATE free_credits SET credits_remaining = GREATEST(credits_remaining - 1, 0) WHERE user_id = $1`,
+      [req.userId]
+    );
+  } catch (creditErr) {
+    console.error("[submit] free credit decrement failed:", creditErr.message);
+  }
   // 5b. Update today's daily-goal progress with the actual attempted count.
   // This is the missing link: incrementGoal() exists in GoalContext but
   // nothing in the test-taking flow ever called it, so the daily goal
