@@ -5,7 +5,7 @@ import TestScreen from "./TestScreen";
 import TestResult from "./TestResult";
 import { useTestQuestions, createAttempt, savePauseState, submitTestAttempt } from "./UseTestQuestion";
 import { fetchAttemptDetail } from "../../../services/testApi";
-
+import { useSubscription } from "../../subscription/usesubscription";
 /**
  * Mirrors the same review transform used in TestHistory's "View Solutions"
  * flow — turns a completed attempt's detail (sections/questions with
@@ -59,6 +59,7 @@ function transformAttemptForReview(detail) {
 export default function TestRunner({ testId, userId, testType = "pyq", candidate, onExit, reviewAttemptId = null }) {
   const [language, setLanguage] = useState("en");
   const { refresh: refreshGoal } = useGoal();
+const { refetch: refetchSubscription } = useSubscription(userId);
   // True from the moment handleStart begins until createAttempt resolves
   // (success or failure). Needed because setLanguage() inside handleStart
   // triggers useTestQuestions to re-fetch (language is one of its deps) —
@@ -193,16 +194,16 @@ export default function TestRunner({ testId, userId, testType = "pyq", candidate
     setStage("submitting");
     setSubmitError(null);
     try {
-      const result = await submitTestAttempt({ attemptId, test, questions, payload });
-      setResult(result);
-      setStage("result");
-      // The backend writes daily_goal_logs on successful submit (PYQ/full/
-      // subject/topic all update it now), but GoalContext only ever
-      // fetched /api/goal/today on initial mount or via incrementGoal()
-      // from practice screens — nothing told it a TEST had also moved the
-      // needle. Without this, the navbar/analytics goal ring would keep
-      // showing stale progress until a full page reload.
-      refreshGoal();
+  const result = await submitTestAttempt({ attemptId, test, questions, payload });
+setResult(result);
+setStage("result");
+// ...comment...
+refreshGoal();
+// Same reasoning as refreshGoal() above: useSubscription's dashboardStatus
+// (testsLocked/creditsRemaining) is cached and only refetched on mount or
+// TTL expiry — without this, a user could keep starting new tests
+// unlimited times post-submit until they manually refreshed the page.
+refetchSubscription();
     } catch (err) {
       
       setSubmitError("Couldn't submit your test. Check your connection and try again — your answers are safe.");
