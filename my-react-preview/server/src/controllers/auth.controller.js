@@ -196,7 +196,7 @@ await pool.query(
       201
     );
   } 
-  } catch (err) {
+  catch (err) {
     console.error("Registration error:", err);
     return fail(res, "Registration failed. Please try again.", 500);
   }
