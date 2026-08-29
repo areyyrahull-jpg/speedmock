@@ -195,7 +195,9 @@ await pool.query(
       { token, user: withDeviceLimit({ ...user, sub_status: null, sub_plan: null, sub_expiry: null }), referralApplied: referralResult?.success || false, deviceId: activeDeviceId },
       201
     );
+  } 
   } catch (err) {
+    console.error("Registration error:", err);
     return fail(res, "Registration failed. Please try again.", 500);
   }
 };
