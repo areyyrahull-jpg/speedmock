@@ -139,9 +139,23 @@ const listTests = async (req, res) => {
   try {
     const { examId, testType, search } = req.query;
 
+    // Per-table ordering: PYQ tests have a real exam date, so sort by
+    // that. Full/subject/topic tests don't carry a real exam date
+    // (they're admin-authored or auto-generated batches), so created_at
+    // (upload time) is the most meaningful "newest first" for those.
+    const ORDER_CONFIG = {
+      pyq_tests:          [{ col: 'test_date', asc: false }, { col: 'test_year', asc: false }, { col: 'created_at', asc: false }],
+      full_tests:         [{ col: 'created_at', asc: false }],
+      subject_wise_tests: [{ col: 'created_at', asc: false }],
+      topic_wise_tests:   [{ col: 'created_at', asc: false }],
+    };
+
     const runQuery = async (table, category) => {
       if (testType && testType !== category) return [];
-      let q = supabase.from(table).select('*').order('created_at', { ascending: false });
+      let q = supabase.from(table).select('*');
+      (ORDER_CONFIG[table] || [{ col: 'created_at', asc: false }]).forEach(({ col, asc }) => {
+        q = q.order(col, { ascending: asc, nullsFirst: false });
+      });
       if (examId) q = q.eq('exam_id', examId);
       if (search) q = q.ilike('test_name', `%${search}%`);
       const { data } = await q.limit(100);
@@ -155,15 +169,21 @@ const listTests = async (req, res) => {
       runQuery('topic_wise_tests', 'topic'),
     ]);
 
+    // Merge sort across all 4 types: use each row's most meaningful
+    // date — real exam date for PYQ, upload time for everything else.
+    const dateOf = (r) => r._type === 'pyq'
+      ? new Date(r.test_date || (r.test_year ? `${r.test_year}-01-01` : r.created_at))
+      : new Date(r.created_at);
+
     const all = [...pyq, ...full, ...subject, ...topic]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      .sort((a, b) => dateOf(b) - dateOf(a));
 
     res.json({ success: true, tests: all });
   } catch (err) {
-    
     res.status(500).json({ success: false, message: 'Failed to load tests.' });
   }
 };
+
 
 const createTest = async (req, res) => {
   try {
