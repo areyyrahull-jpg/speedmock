@@ -7,7 +7,8 @@
 // ════════════════════════════════════════════════════════
 
 const TOKEN_KEY = "speedmock_auth_token";
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const RAW_API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API = RAW_API.replace(/\/api\/?$/, "");
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 
