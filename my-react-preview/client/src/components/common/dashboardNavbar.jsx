@@ -216,8 +216,7 @@ button, input { font-family: 'DM Sans', sans-serif; }
   transition: opacity .2s, transform .2s; z-index: 200; min-height: 60px;
   visibility: hidden;
 }
-.nb-profile-wrap:hover .nb-profile-dropdown,
-.nb-profile-dropdown:hover { opacity: 1; pointer-events: all; transform: translateY(0); visibility: visible; }
+.nb-profile-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); visibility: visible; }
 
 .pd-header {
   padding: 10px 12px 12px; border-bottom: 1px solid var(--b2); margin-bottom: 6px;
@@ -554,6 +553,16 @@ export default function DashboardNavbar({
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen,         setMenuOpen]         = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+const profileCloseTimer = useRef(null);
+
+const openProfile = () => {
+  if (profileCloseTimer.current) clearTimeout(profileCloseTimer.current);
+  setProfileOpen(true);
+};
+const closeProfileDelayed = () => {
+  profileCloseTimer.current = setTimeout(() => setProfileOpen(false), 200);
+};
   const [showExamOverlay,  setShowExamOverlay]  = useState(false);
   const [scrolled,         setScrolled]         = useState(false);
   const [customGoal,       setCustomGoal]       = useState("");
@@ -703,7 +712,11 @@ export default function DashboardNavbar({
        
 
           {/* Profile */}
-          <div className="nb-profile-wrap">
+          <div
+  className="nb-profile-wrap"
+  onMouseEnter={openProfile}
+  onMouseLeave={closeProfileDelayed}
+>
             <div
               className={`nb-avatar${!user ? " guest" : ""}`}
               title={user ? user.name : "Sign in"}
