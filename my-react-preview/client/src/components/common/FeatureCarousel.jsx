@@ -266,16 +266,10 @@ export default function FeatureCarousel() {
       </div>
 
       {/* ── Three-card track ── */}
-       <div
+{/* ── Three-card track ── */}
+      <div
+        className="fc-track"
         style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20, padding:"0 20px", cursor:dragging?"grabbing":"grab" }}
-        onMouseDown={e=>onDragStart(e.clientX)}
-        onMouseMove={e=>onDragMove(e.clientX)}
-        onMouseUp={onDragEnd}
-        onMouseLeave={onDragEnd}
-        onTouchStart={e=>onDragStart(e.touches[0].clientX)}
-        onTouchMove={e=>onDragMove(e.touches[0].clientX)}
-        onTouchEnd={onDragEnd}
-      >
         onMouseDown={e=>onDragStart(e.clientX)}
         onMouseMove={e=>onDragMove(e.clientX)}
         onMouseUp={onDragEnd}
