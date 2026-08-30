@@ -724,7 +724,11 @@ const closeProfileDelayed = () => {
               {user ? initials : "👤"}
             </div>
 
-            <div className="nb-profile-dropdown">
+            <div
+  className={`nb-profile-dropdown${profileOpen ? " open" : ""}`}
+  onMouseEnter={openProfile}
+  onMouseLeave={closeProfileDelayed}
+>
               {user ? (
                 <>
                   <div className="pd-header">
