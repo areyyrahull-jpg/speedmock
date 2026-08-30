@@ -158,7 +158,12 @@ export default function FeatureCarousel() {
         .fc-main{transition:box-shadow .3s ease}
         .fc-dot{transition:all .28s ease;cursor:pointer}
         .fc-arr{transition:all .15s ease}
-        .fc-arr:hover{background:${light ? "rgba(15,23,42,.1)" : "rgba(255,255,255,.12)"}!important;color:${light ? "#0f172a" : "#fff"}!important}
+       .fc-arr:hover{background:${light ? "rgba(15,23,42,.1)" : "rgba(255,255,255,.12)"}!important;color:${light ? "#0f172a" : "#fff"}!important}
+        @media (max-width: 640px) {
+          .fc-track { gap: 0px !important; padding: 0 14px !important; }
+          .fc-side { display: none !important; }
+          .fc-main-card { width: 100% !important; max-width: 100% !important; }
+        }
       `}</style>
 
       {/* ── Heading ── */}
@@ -176,8 +181,16 @@ export default function FeatureCarousel() {
       </div>
 
       {/* ── Three-card track ── */}
-      <div
+       <div
         style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20, padding:"0 20px", cursor:dragging?"grabbing":"grab" }}
+        onMouseDown={e=>onDragStart(e.clientX)}
+        onMouseMove={e=>onDragMove(e.clientX)}
+        onMouseUp={onDragEnd}
+        onMouseLeave={onDragEnd}
+        onTouchStart={e=>onDragStart(e.touches[0].clientX)}
+        onTouchMove={e=>onDragMove(e.touches[0].clientX)}
+        onTouchEnd={onDragEnd}
+      >
         onMouseDown={e=>onDragStart(e.clientX)}
         onMouseMove={e=>onDragMove(e.clientX)}
         onMouseUp={onDragEnd}
@@ -192,7 +205,7 @@ export default function FeatureCarousel() {
         </div>
 
         {/* Main */}
-        <div style={{ flexShrink:0, width:"56%", maxWidth:680 }}>
+        <div className="fc-main-card" style={{ flexShrink:0, width:"56%", maxWidth:680 }}>
           {/* Tag + counter row */}
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
             <span className="fc-tag" key={slide.label} style={{ fontSize:12, fontWeight:700, padding:"5px 14px", borderRadius:999, color:slide.accent, background:slide.accent+"1a", border:`1px solid ${slide.accent}44` }}>
