@@ -10,19 +10,39 @@ const SLIDES = [
     img: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
         <defs>
-          <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
-          <linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#e91e8c"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/></linearGradient>
+          <linearGradient id="bg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
         </defs>
-        <rect width="1200" height="760" fill="url(#bg)"/>
+        <rect width="1200" height="760" fill="url(#bg1)"/>
         <rect x="90" y="90" width="1020" height="580" rx="36" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
         <rect x="130" y="130" width="220" height="70" rx="18" fill="rgba(255,255,255,0.06)"/>
-        <text x="160" y="176" font-size="40" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">📊</text>
-        <text x="200" y="176" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Smart Dashboard</text>
-        <rect x="130" y="240" width="420" height="270" rx="24" fill="url(#g)" opacity="0.22"/>
-        <rect x="160" y="270" width="190" height="16" rx="8" fill="rgba(255,255,255,0.42)"/>
-        <rect x="160" y="304" width="320" height="14" rx="7" fill="rgba(255,255,255,0.18)"/>
-        <rect x="160" y="334" width="260" height="14" rx="7" fill="rgba(255,255,255,0.12)"/>
-        <text x="130" y="588" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Live progress</text>
+        <text x="160" y="176" font-size="36" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">📊</text>
+        <text x="200" y="176" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Smart Dashboard</text>
+
+        <!-- Goal progress ring -->
+        <circle cx="255" cy="360" r="90" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="16"/>
+        <circle cx="255" cy="360" r="90" fill="none" stroke="#e91e8c" stroke-width="16" stroke-linecap="round"
+          stroke-dasharray="565.5" stroke-dashoffset="141" transform="rotate(-90 255 360)"/>
+        <text x="255" y="352" font-size="36" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff" text-anchor="middle">75%</text>
+        <text x="255" y="380" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)" text-anchor="middle">DAILY GOAL</text>
+
+        <!-- Stat cards -->
+        <rect x="410" y="270" width="240" height="90" rx="14" fill="rgba(233,30,140,0.1)" stroke="rgba(233,30,140,0.25)"/>
+        <text x="434" y="308" font-size="26" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">18</text>
+        <text x="434" y="332" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.55)">DAY STREAK 🔥</text>
+
+        <rect x="670" y="270" width="240" height="90" rx="14" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+        <text x="694" y="308" font-size="26" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">87.2%</text>
+        <text x="694" y="332" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.55)">AVG ACCURACY</text>
+
+        <rect x="410" y="380" width="240" height="90" rx="14" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+        <text x="434" y="418" font-size="26" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">24</text>
+        <text x="434" y="442" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.55)">TESTS TAKEN</text>
+
+        <rect x="670" y="380" width="240" height="90" rx="14" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+        <text x="694" y="418" font-size="26" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Rank 7</text>
+        <text x="694" y="442" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.55)">💜 PRO</text>
+
+        <text x="130" y="588" font-size="24" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Live progress, every day</text>
       </svg>
     `)
   },
@@ -34,19 +54,40 @@ const SLIDES = [
     img: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
         <defs>
-          <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
-          <linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/></linearGradient>
+          <linearGradient id="bg2" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
+          <linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.35"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/></linearGradient>
         </defs>
-        <rect width="1200" height="760" fill="url(#bg)"/>
+        <rect width="1200" height="760" fill="url(#bg2)"/>
         <rect x="90" y="90" width="1020" height="580" rx="36" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
         <rect x="130" y="130" width="220" height="70" rx="18" fill="rgba(255,255,255,0.06)"/>
-        <text x="160" y="176" font-size="40" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">📉</text>
-        <text x="200" y="176" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Analytics</text>
-        <rect x="130" y="240" width="420" height="270" rx="24" fill="url(#g)" opacity="0.22"/>
-        <rect x="160" y="270" width="200" height="16" rx="8" fill="rgba(255,255,255,0.42)"/>
-        <rect x="160" y="304" width="300" height="14" rx="7" fill="rgba(255,255,255,0.18)"/>
-        <rect x="160" y="334" width="230" height="14" rx="7" fill="rgba(255,255,255,0.12)"/>
-        <text x="130" y="588" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Sharp insights</text>
+        <text x="160" y="176" font-size="36" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">📉</text>
+        <text x="200" y="176" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Analytics</text>
+
+        <!-- 7-day line chart -->
+        <rect x="130" y="240" width="940" height="200" rx="18" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)"/>
+        <polyline points="160,400 280,360 400,380 520,300 640,330 760,260 880,280 1000,220"
+          fill="none" stroke="#0ea5e9" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <polygon points="160,400 280,360 400,380 520,300 640,330 760,260 880,280 1000,220 1000,440 160,440"
+          fill="url(#area)"/>
+        <circle cx="1000" cy="220" r="7" fill="#0ea5e9"/>
+        <circle cx="1000" cy="220" r="12" fill="none" stroke="#0ea5e9" stroke-width="2" opacity="0.5"/>
+
+        <!-- Subject accuracy bars -->
+        <text x="130" y="490" font-size="13" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">SUBJECT ACCURACY</text>
+        <text x="130" y="522" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Quant</text>
+        <rect x="220" y="510" width="700" height="12" rx="6" fill="rgba(255,255,255,0.08)"/>
+        <rect x="220" y="510" width="588" height="12" rx="6" fill="#22c55e"/>
+        <text x="940" y="521" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.6)">84%</text>
+
+        <text x="130" y="552" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Reasoning</text>
+        <rect x="220" y="540" width="700" height="12" rx="6" fill="rgba(255,255,255,0.08)"/>
+        <rect x="220" y="540" width="469" height="12" rx="6" fill="#f59e0b"/>
+        <text x="940" y="551" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.6)">67%</text>
+
+        <text x="130" y="582" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">English</text>
+        <rect x="220" y="570" width="700" height="12" rx="6" fill="rgba(255,255,255,0.08)"/>
+        <rect x="220" y="570" width="322" height="12" rx="6" fill="#ef4444"/>
+        <text x="940" y="581" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.6)">46%</text>
       </svg>
     `)
   },
@@ -58,19 +99,44 @@ const SLIDES = [
     img: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
         <defs>
-          <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
-          <linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/></linearGradient>
+          <linearGradient id="bg3" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
         </defs>
-        <rect width="1200" height="760" fill="url(#bg)"/>
+        <rect width="1200" height="760" fill="url(#bg3)"/>
         <rect x="90" y="90" width="1020" height="580" rx="36" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
         <rect x="130" y="130" width="220" height="70" rx="18" fill="rgba(255,255,255,0.06)"/>
-        <text x="160" y="176" font-size="40" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">🎯</text>
-        <text x="200" y="176" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Subject Breakdown</text>
-        <rect x="130" y="240" width="420" height="270" rx="24" fill="url(#g)" opacity="0.22"/>
-        <rect x="160" y="270" width="220" height="16" rx="8" fill="rgba(255,255,255,0.42)"/>
-        <rect x="160" y="304" width="260" height="14" rx="7" fill="rgba(255,255,255,0.18)"/>
-        <rect x="160" y="334" width="210" height="14" rx="7" fill="rgba(255,255,255,0.12)"/>
-        <text x="130" y="588" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Target focus</text>
+        <text x="160" y="176" font-size="36" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">🎯</text>
+        <text x="200" y="176" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Subject Breakdown</text>
+
+        <!-- Topic cards with strength ratings -->
+        <rect x="130" y="250" width="460" height="110" rx="16" fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.3)"/>
+        <text x="158" y="292" font-size="18" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Mensuration</text>
+        <text x="158" y="316" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">Quantitative Aptitude</text>
+        <rect x="158" y="330" width="404" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect x="158" y="330" width="121" height="8" rx="4" fill="#ef4444"/>
+        <text x="512" y="285" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ef4444">WEAK</text>
+
+        <rect x="610" y="250" width="460" height="110" rx="16" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)"/>
+        <text x="638" y="292" font-size="18" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Syllogism</text>
+        <text x="638" y="316" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">Reasoning</text>
+        <rect x="638" y="330" width="404" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect x="638" y="330" width="242" height="8" rx="4" fill="#f59e0b"/>
+        <text x="990" y="285" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#f59e0b">AVERAGE</text>
+
+        <rect x="130" y="380" width="460" height="110" rx="16" fill="rgba(34,197,94,0.08)" stroke="rgba(34,197,94,0.3)"/>
+        <text x="158" y="422" font-size="18" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Idioms &amp; Phrases</text>
+        <text x="158" y="446" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">English</text>
+        <rect x="158" y="460" width="404" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect x="158" y="460" width="364" height="8" rx="4" fill="#22c55e"/>
+        <text x="512" y="415" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#22c55e">STRONG</text>
+
+        <rect x="610" y="380" width="460" height="110" rx="16" fill="rgba(34,197,94,0.08)" stroke="rgba(34,197,94,0.3)"/>
+        <text x="638" y="422" font-size="18" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Static GK</text>
+        <text x="638" y="446" font-size="12" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">General Awareness</text>
+        <rect x="638" y="460" width="404" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+        <rect x="638" y="460" width="384" height="8" rx="4" fill="#22c55e"/>
+        <text x="990" y="415" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#22c55e">STRONG</text>
+
+        <text x="130" y="560" font-size="24" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Target focus, not guesswork</text>
       </svg>
     `)
   },
@@ -82,19 +148,38 @@ const SLIDES = [
     img: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
         <defs>
-          <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
-          <linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/></linearGradient>
+          <linearGradient id="bg4" x1="0" x2="1" y1="0" y2="1"><stop offset="0%" stop-color="#0b1020"/><stop offset="100%" stop-color="#151a2d"/></linearGradient>
         </defs>
-        <rect width="1200" height="760" fill="url(#bg)"/>
+        <rect width="1200" height="760" fill="url(#bg4)"/>
         <rect x="90" y="90" width="1020" height="580" rx="36" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.09)"/>
         <rect x="130" y="130" width="220" height="70" rx="18" fill="rgba(255,255,255,0.06)"/>
-        <text x="160" y="176" font-size="40" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">📝</text>
-        <text x="200" y="176" font-size="28" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Mock Test Series</text>
-        <rect x="130" y="240" width="420" height="270" rx="24" fill="url(#g)" opacity="0.22"/>
-        <rect x="160" y="270" width="200" height="16" rx="8" fill="rgba(255,255,255,0.42)"/>
-        <rect x="160" y="304" width="300" height="14" rx="7" fill="rgba(255,255,255,0.18)"/>
-        <rect x="160" y="334" width="220" height="14" rx="7" fill="rgba(255,255,255,0.12)"/>
-        <text x="130" y="588" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Exam-ready</text>
+        <text x="160" y="176" font-size="36" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">📝</text>
+        <text x="200" y="176" font-size="26" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Mock Test Series</text>
+
+        <!-- Test paper cards -->
+        <rect x="130" y="250" width="300" height="230" rx="18" fill="rgba(34,197,94,0.08)" stroke="rgba(34,197,94,0.3)"/>
+        <text x="158" y="288" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#22c55e">SSC CGL TIER 1</text>
+        <text x="158" y="322" font-size="20" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">2024 Paper</text>
+        <text x="158" y="346" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">100 Qs · 60 min</text>
+        <rect x="158" y="400" width="244" height="40" rx="10" fill="#22c55e"/>
+        <text x="280" y="425" font-size="14" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#0b1020" text-anchor="middle">Start Test</text>
+
+        <rect x="450" y="250" width="300" height="230" rx="18" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)"/>
+        <text x="478" y="288" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.6)">SSC CHSL TIER 1</text>
+        <text x="478" y="322" font-size="20" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">2023 Paper</text>
+        <text x="478" y="346" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">100 Qs · 60 min</text>
+        <text x="478" y="380" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="#f59e0b">Score: 78/100</text>
+        <rect x="478" y="400" width="244" height="40" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)"/>
+        <text x="600" y="425" font-size="14" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff" text-anchor="middle">Review</text>
+
+        <rect x="770" y="250" width="300" height="230" rx="18" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)"/>
+        <text x="798" y="288" font-size="12" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.6)">RRB NTPC CBT 1</text>
+        <text x="798" y="322" font-size="20" font-weight="800" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">2024 Paper</text>
+        <text x="798" y="346" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="rgba(255,255,255,0.5)">100 Qs · 90 min</text>
+        <rect x="798" y="400" width="244" height="40" rx="10" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)"/>
+        <text x="920" y="425" font-size="14" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff" text-anchor="middle">Start Test</text>
+
+        <text x="130" y="560" font-size="24" font-weight="700" font-family="Segoe UI, Arial, sans-serif" fill="#ffffff">Exam-ready, paper after paper</text>
       </svg>
     `)
   }
