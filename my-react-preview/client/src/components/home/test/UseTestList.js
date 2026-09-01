@@ -121,6 +121,7 @@ async function fetchPyqTests(examId, userId) {
     .select("id, test_name, test_year, test_date, total_questions, duration_minutes, display_order, is_active")
     .eq("exam_id", examUuid)
     .eq("is_active", true)
+  .order("test_date", { ascending: false, nullsFirst: false })
     .order("test_year", { ascending: false })
     .order("display_order", { ascending: true });
   if (catErr) throw catErr;
