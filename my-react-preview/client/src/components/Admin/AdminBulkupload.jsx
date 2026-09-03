@@ -19,7 +19,8 @@ const SAMPLE_JSON = `[
     "marks": 1,
     "negativeMarking": 0.25,
     "isPyq": true,
-    "pyqYear": 2023
+    "pyqYear": 2023,
+    "tier": "TIER_1"
   }
 ]`;
 
@@ -164,7 +165,7 @@ export default function AdminBulkUpload() {
       <div className="adm-field">
         <textarea className="adm-textarea" style={{minHeight:220}} value={raw}
           onChange={e=>{setRaw(e.target.value);setParsed(null);setParseError(null);}}
-          placeholder={`Paste JSON array. Each item:\n{\n  "text": "Question (English)",\n  "textHi": "प्रश्न (Hindi, optional)",\n  "options": [{"text":"A","textHi":"क"},{"text":"B"},{"text":"C"},{"text":"D"}],\n  "correctAnswer": 0,\n  "explanation": "...",\n  "explanationHi": "... (optional)",\n  "difficulty": "EASY|MEDIUM|HARD",\n  "marks": 1,\n  "negativeMarking": 0.25,\n  "isPyq": true,\n  "pyqYear": 2023\n}`}/>
+          placeholder={`Paste JSON array. Each item:\n{\n  "text": "Question (English)",\n  "textHi": "प्रश्न (Hindi, optional)",\n  "options": [{"text":"A","textHi":"क"},{"text":"B"},{"text":"C"},{"text":"D"}],\n  "correctAnswer": 0,\n  "explanation": "...",\n  "explanationHi": "... (optional)",\n  "difficulty": "EASY|MEDIUM|HARD",\n  "marks": 1,\n  "negativeMarking": 0.25,\n  "isPyq": true,\n  "pyqYear": 2023,\n  "tier": "TIER_1 (optional)"\n}`}/>
         <div className="adm-hint">
           correctAnswer is 0-based (0=A). Options can be strings or objects with text/textHi/imageUrl. Hindi fields are optional. Max 500 per batch.
         </div>
