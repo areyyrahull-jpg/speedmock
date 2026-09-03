@@ -180,10 +180,10 @@ const listTests = async (req, res) => {
 
     res.json({ success: true, tests: all });
   } catch (err) {
+    
     res.status(500).json({ success: false, message: 'Failed to load tests.' });
   }
 };
-
 
 const createTest = async (req, res) => {
   try {
@@ -274,7 +274,7 @@ const deleteTest = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────
 //  BATCH GENERATOR — chunk a subject's (or topic's) PYQ
-//  question pool into 20-question / 20-minute subject_wise_tests
+//  question pool into 20-question/20-minute subject_wise_tests
 //  or topic_wise_tests rows, sorted oldest→newest by pyq_year.
 //  Additive: existing admin-authored tests are untouched; running
 //  this again only adds batches for questions not yet covered.
@@ -598,6 +598,7 @@ const bulkImportQuestions = async (req, res) => {
         marks: Number(q.marks || 1), negative_marking: Number(q.negativeMarking || 0.25),
         is_pyq: Boolean(isPyq), pyq_year: q.pyqYear || null,
         pyq_exam_date: q.pyqExamDate || null,
+        tier: q.tier || null,
         status: 'PUBLISHED',
       };
     });
