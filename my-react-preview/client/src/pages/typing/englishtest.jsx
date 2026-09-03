@@ -4,9 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../services/supabaseClient";
 import TypingPaperList from "./TypingPaperList";
 import { ENGLISH_EXTRA_PASSAGES } from "./typing_extra_passages";
-/* ─── PAPER LIST — PYQ first, then Extra ─────────────────────────── */
-const ENGLISH_PAPERS = [
-  // ── PYQ Papers ─────────────────────────────────────────────────
+/* ─── PYQ PAPERS ──────────────────────────────────────────────────── */
+const ENGLISH_PYQ_PAPERS = [
   {
     id: "pyq-2024-1",
     category: "pyq",
@@ -43,19 +42,14 @@ const ENGLISH_PAPERS = [
     source: "SSC CPO",
     passage: "Water is one of the most precious resources on earth and its conservation is extremely important for the survival of all living beings. With the growing population and rapid industrialisation the demand for fresh water has increased many times over the years. Rivers lakes and groundwater sources are being polluted at an alarming rate due to the discharge of industrial effluents and untreated sewage into water bodies. The government has launched several programmes to clean rivers and promote rainwater harvesting in urban and rural areas. People need to be made aware of the importance of saving water and using it judiciously in their daily lives. Small steps such as fixing leaking taps and using water efficient appliances can make a big difference in conserving this precious resource for future generations.",
   },
-  // ── Extra — Good Level Passages ────────────────────────────────
-  
-  ...ENGLISH_EXTRA_PASSAGES,
 ];
 
 function getTestPassage(paperId) {
   if (paperId) {
-    const found = ENGLISH_PAPERS.find(p => p.id === paperId);
+    const found = ENGLISH_PYQ_PAPERS.find(p => p.id === paperId);
     if (found) return found.passage;
   }
-  // fallback: random PYQ passage
-  const pyq = ENGLISH_PAPERS.filter(p => p.category === "pyq");
-  return pyq[Math.floor(Math.random() * pyq.length)].passage;
+  return ENGLISH_PYQ_PAPERS[Math.floor(Math.random() * ENGLISH_PYQ_PAPERS.length)].passage;
 }
 
 function calcWPM(correctChars, elapsedSeconds) {
@@ -736,6 +730,41 @@ export function EnglishTest({ onBack, userId, isSubscribed = false }) {
   const [testStats, setTestStats] = useState(null);
   const [selectedPaper, setSelectedPaper] = useState(null);
 
+  // Extra passages come from the admin-managed typing_passages table now,
+  // not the static typing_extra_passages.js file — that file's content is
+  // kept as a fallback only in case the fetch fails or the table is empty,
+  // so admin-added passages actually reach students instead of silently
+  // never showing up.
+  const [extraPassages, setExtraPassages] = useState(ENGLISH_EXTRA_PASSAGES);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("typing_passages")
+          .select("id, label, passage, icon, display_order, is_active")
+          .eq("language", "english")
+          .eq("category", "extra")
+          .eq("is_active", true)
+          .order("display_order", { ascending: true });
+        if (!error && data && data.length > 0 && !cancelled) {
+          setExtraPassages(data.map(p => ({
+            id: p.id,
+            category: "extra",
+            label: p.label,
+            icon: p.icon || "📄",
+            passage: p.passage,
+          })));
+        }
+      } catch (err) {
+        // keep static fallback on any failure
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const papers = useMemo(() => [...ENGLISH_PYQ_PAPERS, ...extraPassages], [extraPassages]);
+
   const handleFinish = async (stats) => {
     // Save to Supabase
     await saveTestResultToSupabase(userId, stats, "english");
@@ -755,7 +784,7 @@ export function EnglishTest({ onBack, userId, isSubscribed = false }) {
   if (screen === "papers")
     return (
       <TypingPaperList
-        papers={ENGLISH_PAPERS}
+        papers={papers}
         language="english"
         onSelect={(paper) => { setSelectedPaper(paper); setScreen("test"); }}
         onBack={onBack}
