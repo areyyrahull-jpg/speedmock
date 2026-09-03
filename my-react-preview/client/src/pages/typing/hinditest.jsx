@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { usePqTheme, PqThemeToggle } from "../../services/usePqTheme";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../services/supabaseClient";
@@ -6,9 +6,8 @@ import { ENGLISH_EXTRA_PASSAGES, HINDI_EXTRA_PASSAGES } from "./typing_extra_pas
 /* ─── TEST PASSAGES (HINDI) ─────────────────────────────────────────────── */
 import TypingPaperList from "./TypingPaperList";
 
-/* ─── PAPER LIST — PYQ first, then Extra ─────────────────────────── */
-const HINDI_PAPERS = [
-  // ── PYQ Papers ─────────────────────────────────────────────────
+/* ─── PYQ PAPERS ──────────────────────────────────────────────────── */
+const HINDI_PYQ_PAPERS = [
   {
     id: "hi-pyq-2024-1",
     category: "pyq",
@@ -45,17 +44,14 @@ const HINDI_PAPERS = [
     source: "SSC CPO",
     passage: "जल पृथ्वी पर सबसे कीमती संसाधनों में से एक है और सभी जीवित प्राणियों के अस्तित्व के लिए इसका संरक्षण अत्यंत महत्वपूर्ण है। बढ़ती जनसंख्या और तेजी से औद्योगिकीकरण के साथ ताजे पानी की मांग पिछले कुछ वर्षों में कई गुना बढ़ गई है। नदियों झीलों और भूजल स्रोतों में औद्योगिक अपशिष्टों और अनुपचारित सीवेज के जल निकायों में छोड़े जाने के कारण चिंताजनक दर से प्रदूषण हो रहा है। सरकार ने नदियों को साफ करने और शहरी और ग्रामीण क्षेत्रों में वर्षा जल संचयन को बढ़ावा देने के लिए कई कार्यक्रम शुरू किए हैं।",
   },
-  // ── Extra — Good Level Passages ────────────────────────────────
-...HINDI_EXTRA_PASSAGES,
 ];
 
 function getTestPassage(paperId) {
   if (paperId) {
-    const found = HINDI_PAPERS.find(p => p.id === paperId);
+    const found = HINDI_PYQ_PAPERS.find(p => p.id === paperId);
     if (found) return found.passage;
   }
-  const pyq = HINDI_PAPERS.filter(p => p.category === "pyq");
-  return pyq[Math.floor(Math.random() * pyq.length)].passage;
+  return HINDI_PYQ_PAPERS[Math.floor(Math.random() * HINDI_PYQ_PAPERS.length)].passage;
 }
 
 function calcWPM(correctChars, elapsedSeconds) {
@@ -698,6 +694,41 @@ export default function HindiTest({ onBack, userId, isSubscribed = false }) {
   const [testStats, setTestStats] = useState(null);
   const [selectedPaper, setSelectedPaper] = useState(null);
 
+  // Extra passages come from the admin-managed typing_passages table now,
+  // not the static typing_extra_passages.js file — that file's content is
+  // kept as a fallback only in case the fetch fails or the table is empty,
+  // so admin-added passages actually reach students instead of silently
+  // never showing up.
+  const [extraPassages, setExtraPassages] = useState(HINDI_EXTRA_PASSAGES);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("typing_passages")
+          .select("id, label, passage, icon, display_order, is_active")
+          .eq("language", "hindi")
+          .eq("category", "extra")
+          .eq("is_active", true)
+          .order("display_order", { ascending: true });
+        if (!error && data && data.length > 0 && !cancelled) {
+          setExtraPassages(data.map(p => ({
+            id: p.id,
+            category: "extra",
+            label: p.label,
+            icon: p.icon || "📄",
+            passage: p.passage,
+          })));
+        }
+      } catch (err) {
+        // keep static fallback on any failure
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const papers = useMemo(() => [...HINDI_PYQ_PAPERS, ...extraPassages], [extraPassages]);
+
   const handleFinish = async (stats) => {
     await saveTestResultToSupabase(userId, stats, "hindi");
     setTestStats(stats);
@@ -716,7 +747,7 @@ export default function HindiTest({ onBack, userId, isSubscribed = false }) {
   if (screen === "papers")
     return (
       <TypingPaperList
-        papers={HINDI_PAPERS}
+        papers={papers}
         language="hindi"
         onSelect={(paper) => { setSelectedPaper(paper); setScreen("test"); }}
         onBack={onBack}
