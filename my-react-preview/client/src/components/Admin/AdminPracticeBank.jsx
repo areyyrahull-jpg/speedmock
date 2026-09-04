@@ -18,15 +18,19 @@ const optionIndexFromRow = (q) => {
 const SAMPLE_JSON = `[
   {
     "text": "What is the square root of 144?",
+    "questionType": "mcq",
     "options": ["10","12","14","16"],
     "correctAnswer": 1,
-    "difficulty": "EASY"
+    "difficulty": "EASY",
+    "tier": "TIER_1"
   },
   {
     "text": "A train travels 60 km in 45 minutes. Speed in km/h?",
+    "questionType": "mcq",
     "options": ["75","80","85","90"],
     "correctAnswer": 1,
-    "difficulty": "MEDIUM"
+    "difficulty": "MEDIUM",
+    "tier": "TIER_2"
   }
 ]`;
 
@@ -477,7 +481,7 @@ function BulkView({ examId, subjectId, topics, show, onChanged }) {
       <div className="adm-field">
         <textarea className="adm-textarea" style={{minHeight:200}} value={raw}
           onChange={e=>{setRaw(e.target.value);setParsed(null);setParseError(null);}}
-          placeholder={`Paste JSON array. Each item:\n{ "text":"...", "options":["A","B","C","D"], "correctAnswer":0, "difficulty":"EASY" }`}/>
+          placeholder={`Paste JSON array. Each item:\n{ "text":"...", "questionType":"mcq", "options":["A","B","C","D"], "correctAnswer":0, "difficulty":"EASY", "tier":"TIER_1 (optional)" }`}/>
         <div className="adm-hint">correctAnswer is 0-based (0=A). Difficulty: EASY / MEDIUM / HARD. Max 500 per batch.</div>
       </div>
 
