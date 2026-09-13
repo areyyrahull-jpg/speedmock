@@ -45,6 +45,10 @@ export function examDisplayName(examIdOrCode) {
   return EXAM_NAMES[examIdOrCode.toLowerCase()] || examIdOrCode;
 }
 
+// Exams whose PYQ papers come in Tier 1 / Tier 2 flavors — used to decide
+// whether the tier toggle should render at all (pyqpapers.jsx checks this).
+export const TIERED_EXAMS = ["cgl", "chsl"];
+
 export const SECTION_PALETTE = [
   "#d946ef", "#0ea5e9", "#f59e0b",
   "#3ED9A0", "#a855f7", "#ef4444",
@@ -111,17 +115,24 @@ function deriveStatus(a, totalQuestions) {
 
 /* ────────────────────────────────────────────────────────
    PYQ CATALOG
+   `tier` is optional — pass "TIER_1" / "TIER_2" to scope the catalog
+   (only meaningful for CGL/CHSL; harmless no-op for other exams since
+   their pyq_tests rows just won't have a matching tier value set).
 ──────────────────────────────────────────────────────── */
-async function fetchPyqTests(examId, userId) {
+async function fetchPyqTests(examId, userId, tier) {
   const examUuid = await resolveExamId(examId);
   if (!examUuid) return [];
 
-  const { data: catalog, error: catErr } = await supabase
+  let query = supabase
     .from("pyq_tests")
-    .select("id, test_name, test_year, test_date, total_questions, duration_minutes, display_order, is_active")
+    .select("id, test_name, test_year, test_date, total_questions, duration_minutes, display_order, is_active, tier")
     .eq("exam_id", examUuid)
-    .eq("is_active", true)
-  .order("test_date", { ascending: false, nullsFirst: false })
+    .eq("is_active", true);
+
+  if (tier) query = query.eq("tier", tier);
+
+  const { data: catalog, error: catErr } = await query
+    .order("test_date", { ascending: false, nullsFirst: false })
     .order("test_year", { ascending: false })
     .order("display_order", { ascending: true });
   if (catErr) throw catErr;
@@ -150,6 +161,7 @@ async function fetchPyqTests(examId, userId) {
     duration: t.duration_minutes,
     category: "PYQ",
     year: t.test_year,
+    tier: t.tier,
     free: false,
     isNew: false,
     icon: "📜",
@@ -166,12 +178,12 @@ async function fetchSubjectTests(examId, userId) {
 
   const { data: catalog, error } = await supabase
     .from("subject_wise_tests")
-    .select("id, test_name, test_number, total_questions, duration_minutes, display_order, is_active, subject_id, generated_by_user_id, subjects(subject_name)")
+    .select("id, test_name, test_number, total_questions, duration_minutes, display_order, is_active, subject_id, generated_by_user_id, created_at, subjects(subject_name)")
     .eq("exam_id", examUuid)
     .eq("is_active", true)
     .or(`generated_by_user_id.is.null${userId ? `,generated_by_user_id.eq.${userId}` : ""}`)
-    .order("display_order", { ascending: true })
-    .order("test_number", { ascending: true });
+    .order("created_at", { ascending: false })
+    .order("display_order", { ascending: true });
   if (error) throw error;
   if (!catalog?.length) return [];
 
@@ -197,8 +209,9 @@ async function fetchSubjectTests(examId, userId) {
  * @param {string} examId    short id, exam_code, or UUID
  * @param {string} testType  "pyq" | "subject"
  * @param {string} userId
+ * @param {string} [tier]    "TIER_1" | "TIER_2" — pyq only, optional
  */
-export function useTestsList(examId, testType, userId) {
+export function useTestsList(examId, testType, userId, tier) {
   const [tests, setTests]     = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
@@ -210,7 +223,7 @@ export function useTestsList(examId, testType, userId) {
 
     try {
       if (testType === "pyq") {
-        setTests(await fetchPyqTests(examId, userId));
+        setTests(await fetchPyqTests(examId, userId, tier));
       } else if (testType === "subject") {
         setTests(await fetchSubjectTests(examId, userId));
       } else {
@@ -223,7 +236,7 @@ export function useTestsList(examId, testType, userId) {
     } finally {
       setLoading(false);
     }
-  }, [examId, testType, userId]);
+  }, [examId, testType, userId, tier]);
 
   useEffect(() => { fetchTests(); }, [fetchTests]);
 
