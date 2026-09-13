@@ -41,6 +41,15 @@ const TYPE_CFG = {
   },
 };
 
+// SSC GD only: a single PYQ/full test links questions from BOTH the
+// English-language-section subject AND a separate Hindi-language-section
+// subject (two different subject_ids, not translations of each other).
+// The student picks one language; we then exclude the other language's
+// questions/section entirely, everywhere they're used below.
+const GD_EXAM_UUID = "ad11c111-d4dd-4e43-973b-bc12f53fc6e1";
+const GD_ENGLISH_SUBJECT_ID = "9df3e91f-baf9-47ea-8d33-76dd06f4568b";
+const GD_HINDI_SUBJECT_ID   = "9ecf9a71-faff-46fa-8e53-5e1b2ead83ec";
+
 export function useTestQuestions(testId, userId, testType = "pyq", language = "en") {
   const cfg = TYPE_CFG[testType] || TYPE_CFG.pyq;
 
@@ -75,6 +84,13 @@ export function useTestQuestions(testId, userId, testType = "pyq", language = "e
       const sectional = testRow.exam_id === CGL_EXAM_UUID
         || /\bcgl\b|combined graduate level/i.test(examName);
 
+      // SSC GD: which language-section subject to EXCLUDE based on the
+      // student's chosen language for this attempt.
+      const isGD = testRow.exam_id === GD_EXAM_UUID;
+      const gdExcludeSubjectId = isGD
+        ? (language === "hi" ? GD_ENGLISH_SUBJECT_ID : GD_HINDI_SUBJECT_ID)
+        : null;
+
       // ── 2. Sections ───────────────────────────────────────────
       let sections = [];
       if (cfg.sectionTable) {
@@ -89,6 +105,10 @@ export function useTestQuestions(testId, userId, testType = "pyq", language = "e
           name: s.subjects?.subject_name || "Section",
           color: SECTION_PALETTE[i % SECTION_PALETTE.length],
         }));
+
+        if (gdExcludeSubjectId) {
+          sections = sections.filter(s => s.id !== gdExcludeSubjectId);
+        }
       }
 
       // ── 3. Questions — answer key NOT selected ────────────────
@@ -143,10 +163,18 @@ export function useTestQuestions(testId, userId, testType = "pyq", language = "e
         };
       });
 
+      // SSC GD: drop every question belonging to the language-section
+      // subject the student did NOT choose. Reasoning/GA/Quant questions
+      // have a different subject_id entirely and are untouched.
+      let filteredQuestions = mappedQuestions;
+      if (gdExcludeSubjectId) {
+        filteredQuestions = mappedQuestions.filter(q => q.sectionId !== gdExcludeSubjectId);
+      }
+
       // Derive sections from question subjects when there's no section table
       if (sections.length === 0) {
         const seen = new Map();
-        mappedQuestions.forEach(q => {
+        filteredQuestions.forEach(q => {
           if (q.sectionId && !seen.has(q.sectionId)) {
             seen.set(q.sectionId, {
               id: q.sectionId,
@@ -180,7 +208,7 @@ export function useTestQuestions(testId, userId, testType = "pyq", language = "e
         sections,
         sectional, // true → TestScreen enforces per-section time limits (SSC CGL)
       });
-      setQuestions(mappedQuestions);
+      setQuestions(filteredQuestions);
 
       // ── 4. Resume — most recent in-progress attempt ───────────
       if (userId) {
