@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useInjectCSS, PageHeader, FilterBar, TestCard, EmptyState, useTestFilters } from "./TestListShared";
-import { useTestsList, examDisplayName } from "./UseTestList";
+import { useTestsList, examDisplayName, TIERED_EXAMS } from "./UseTestList";
 import { useExam } from "../../../context/ExamContext"; // ← adjust path to match your project structure
 
 /**
@@ -29,8 +29,16 @@ export default function PYQPapers({
   // dashboard, since no examName was ever passed down from App.jsx.
   const displayExamName = examName || examDisplayName(activeExamId);
 
+  // ── TIER TOGGLE — CGL/CHSL only ─────────────────────────────────
+  // Other exams (GD, MTS, CPO, NTPC, Group D...) don't have a Tier 1/
+  // Tier 2 PYQ split, so the toggle only renders for exams listed in
+  // TIERED_EXAMS. Defaults to Tier 1.
+  const showTierToggle = TIERED_EXAMS.includes((activeExamId || "").toLowerCase());
+  const [tier, setTier] = useState("TIER_1");
+  const activeTier = showTierToggle ? tier : undefined;
+
   useInjectCSS();
-  const { tests, loading, error, refetch } = useTestsList(activeExamId, "pyq", userId);
+  const { tests, loading, error, refetch } = useTestsList(activeExamId, "pyq", userId, activeTier);
   const { search, setSearch, statusFilter, setStatusFilter, filterFn } = useTestFilters();
 
   const filtered = tests.filter(filterFn);
@@ -52,6 +60,33 @@ export default function PYQPapers({
       />
 
       <div className="tl-body">
+        {showTierToggle && (
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            {[
+              { id: "TIER_1", label: "Tier 1" },
+              { id: "TIER_2", label: "Tier 2" },
+            ].map(t => (
+              <button
+                key={t.id}
+                onClick={() => setTier(t.id)}
+                style={{
+                  padding: "8px 20px",
+                  borderRadius: 9,
+                  border: tier === t.id ? "1px solid rgba(217,70,239,.4)" : "1px solid var(--b2)",
+                  background: tier === t.id ? "rgba(217,70,239,.12)" : "var(--bg3)",
+                  color: tier === t.id ? "var(--f)" : "var(--m)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "all .2s",
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <FilterBar
           search={search} onSearch={setSearch}
           statusFilter={statusFilter} onStatusChange={setStatusFilter}
