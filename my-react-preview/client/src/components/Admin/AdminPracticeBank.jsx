@@ -5,9 +5,6 @@ import { AdminModal, ConfirmDialog, Toast, useToast } from "./AdminPanel";
 const PAGE_SIZE = 50;
 const DIFFICULTIES = ["EASY","MEDIUM","HARD"];
 
-// `questions.correct_option` is stored as a letter ('a'|'b'|'c'|'d'); the
-// form works with a 0-based index. Convert on read so edit shows the real
-// stored answer instead of always defaulting to Option A.
 const LETTER_TO_INDEX = { a:0, b:1, c:2, d:3 };
 const optionIndexFromRow = (q) => {
   if (Number.isInteger(q?.correctAnswer)) return q.correctAnswer;
@@ -49,7 +46,7 @@ function validateRows(rows) {
 
 export default function AdminPracticeBank() {
   const { toast, show } = useToast();
-  const [mode, setMode]       = useState("manage"); // "manage" | "bulk"
+  const [mode, setMode]       = useState("manage");
 
   const [exams, setExams]         = useState([]);
   const [subjects, setSubjects]   = useState([]);
@@ -72,7 +69,6 @@ export default function AdminPracticeBank() {
     apiFetch(`/api/admin/topics?subjectId=${subjectId}`).then(({data})=>{ if(data.success) setTopics(data.topics||[]); });
   }, [subjectId]);
 
-  // topics that already have practice questions (for the topic picker)
   const fetchAvailableTopics = useCallback(async () => {
     if (!examId || !subjectId) { setAvailableTopics([]); return; }
     const { data } = await apiFetch(`/api/admin/practice-questions/topics?examId=${examId}&subjectId=${subjectId}`);
@@ -82,7 +78,6 @@ export default function AdminPracticeBank() {
 
   return (
     <>
-      {/* SELECTORS */}
       <div className="adm-toolbar">
         <select className="adm-select" value={examId} onChange={e=>{setExamId(e.target.value);setSubjectId("");setTopicId("");}}>
           <option value="">Select exam *</option>
@@ -135,20 +130,18 @@ function ManageView({ examId, subjectId, topicId, topics, show, onChanged }) {
     text:"", textHi:"", imageUrl:"",
     options:["","","",""], optionsHi:["","","",""], optionImages:["","","",""],
     correctAnswer:0, explanation:"", explanationHi:"",
-    difficulty:"MEDIUM", topicId:"",
+    difficulty:"MEDIUM", topicId:"", tier:"",
   });
   const [saving, setSaving]       = useState(false);
   const [formError, setFormError] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting]   = useState(false);
 
-  // ── KEYBOARD NAVIGATION ───────────────────────────────────────
-  // field indices: [0..3] option EN A-D, [4..7] option HI A-D, [8..11] option IMG A-D
   const GRID = [
-    [0, 4, 8],   // option A: EN, HI, IMG
-    [1, 5, 9],   // option B
-    [2, 6, 10],  // option C
-    [3, 7, 11],  // option D
+    [0, 4, 8],
+    [1, 5, 9],
+    [2, 6, 10],
+    [3, 7, 11],
   ];
   const fieldRefs = useRef([]);
   const setRef = (el, idx) => { fieldRefs.current[idx] = el; };
@@ -199,7 +192,7 @@ function ManageView({ examId, subjectId, topicId, topics, show, onChanged }) {
     text:"", textHi:"", imageUrl:"",
     options:["","","",""], optionsHi:["","","",""], optionImages:["","","",""],
     correctAnswer:0, explanation:"", explanationHi:"",
-    difficulty:"MEDIUM", topicId: tid||"",
+    difficulty:"MEDIUM", topicId: tid||"", tier:"",
   });
 
   const openCreate = () => {
@@ -218,7 +211,7 @@ function ManageView({ examId, subjectId, topicId, topics, show, onChanged }) {
       optionImages:[q.option_a_image||"",q.option_b_image||"",q.option_c_image||"",q.option_d_image||""],
       correctAnswer: optionIndexFromRow(q),
       explanation: q.explanation||"", explanationHi: q.explanation_hi||"",
-      difficulty: q.difficulty||"MEDIUM", topicId: q.topic_id||"",
+      difficulty: q.difficulty||"MEDIUM", topicId: q.topic_id||"", tier: q.tier||"",
     });
     setFormError(null); setModalOpen(true);
   };
@@ -242,7 +235,7 @@ function ManageView({ examId, subjectId, topicId, topics, show, onChanged }) {
         correctAnswer: Number(form.correctAnswer),
         explanation: form.explanation||undefined,
         explanationHi: form.explanationHi||undefined,
-        difficulty: form.difficulty, isPyq: false,
+        difficulty: form.difficulty, tier: form.tier||undefined, isPyq: false,
       };
       const { ok, data } = editing
         ? await apiFetch(`/api/admin/practice-questions/${editing.id}`,{method:"PUT",body:JSON.stringify(payload)})
@@ -346,6 +339,15 @@ function ManageView({ examId, subjectId, topicId, topics, show, onChanged }) {
           </div>
         </div>
 
+        <div className="adm-field">
+          <label className="adm-label">Tier (optional — for CGL/CHSL Tier 2 subjects like Statistics/Computer)</label>
+          <select className="adm-select" style={{width:"100%",maxWidth:240}} value={form.tier} onChange={e=>setForm(f=>({...f,tier:e.target.value}))}>
+            <option value="">No specific tier</option>
+            <option value="TIER_1">Tier 1</option>
+            <option value="TIER_2">Tier 2</option>
+          </select>
+        </div>
+
         <div className="adm-row-2">
           <div className="adm-field">
             <label className="adm-label">Question Text (English)</label>
@@ -427,6 +429,7 @@ function ManageView({ examId, subjectId, topicId, topics, show, onChanged }) {
 /* ── BULK VIEW ───────────────────────────────────────────────────── */
 function BulkView({ examId, subjectId, topics, show, onChanged }) {
   const [topicId, setTopicId]   = useState("");
+  const [tier, setTier]         = useState("");
   const [raw, setRaw]           = useState("");
   const [parsed, setParsed]     = useState(null);
   const [parseError, setParseError] = useState(null);
@@ -456,7 +459,7 @@ function BulkView({ examId, subjectId, topics, show, onChanged }) {
       }));
       const { ok, data } = await apiFetch("/api/admin/practice-questions/bulk",{
         method:"POST",
-        body:JSON.stringify({ examId, subjectId, topicId:topicId||undefined, questions }),
+        body:JSON.stringify({ examId, subjectId, topicId:topicId||undefined, tier:tier||undefined, questions }),
       });
       if (!ok||!data.success) throw new Error(data.message||"Import failed");
       show(`${data.imported} questions imported`,"success");
@@ -472,6 +475,15 @@ function BulkView({ examId, subjectId, topics, show, onChanged }) {
         <select className="adm-select" style={{width:"100%"}} value={topicId} onChange={e=>setTopicId(e.target.value)}>
           <option value="">No specific topic</option>
           {topics.map(t=><option key={t.id} value={t.id}>{t.topic_name}</option>)}
+        </select>
+      </div>
+
+      <div className="adm-field" style={{marginBottom:12,maxWidth:240}}>
+        <label className="adm-label">Tier (optional — applies to all imported rows)</label>
+        <select className="adm-select" style={{width:"100%"}} value={tier} onChange={e=>setTier(e.target.value)}>
+          <option value="">No specific tier</option>
+          <option value="TIER_1">Tier 1</option>
+          <option value="TIER_2">Tier 2</option>
         </select>
       </div>
 
