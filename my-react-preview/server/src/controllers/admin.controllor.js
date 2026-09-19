@@ -275,8 +275,8 @@ const updateTest = async (req, res) => {
     const { data, error } = await supabase.from(table).update(updates).eq('id', testId).select().single();
     if (error) throw error;
     res.json({ success: true, test: data });
-  } catch (err) {
-    
+} catch (err) {
+    console.error("updateTest error:", err);
     res.status(500).json({ success: false, message: 'Failed to update test.' });
   }
 };
