@@ -139,6 +139,10 @@ const listTests = async (req, res) => {
   try {
     const { examId, testType, search } = req.query;
 
+    // Per-table ordering: PYQ tests have a real exam date, so sort by
+    // that. Full/subject/topic tests don't carry a real exam date
+    // (they're admin-authored or auto-generated batches), so created_at
+    // (upload time) is the most meaningful "newest first" for those.
     const ORDER_CONFIG = {
       pyq_tests:          [{ col: 'test_date', asc: false }, { col: 'test_year', asc: false }, { col: 'created_at', asc: false }],
       full_tests:         [{ col: 'created_at', asc: false }],
@@ -165,6 +169,8 @@ const listTests = async (req, res) => {
       runQuery('topic_wise_tests', 'topic'),
     ]);
 
+    // Merge sort across all 4 types: use each row's most meaningful
+    // date — real exam date for PYQ, upload time for everything else.
     const dateOf = (r) => r._type === 'pyq'
       ? new Date(r.test_date || (r.test_year ? `${r.test_year}-01-01` : r.created_at))
       : new Date(r.created_at);
@@ -224,6 +230,18 @@ const createTest = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────
+//  updateTest — previously whitelisted snake_case keys
+//  ('test_name','total_questions', etc.) and checked them directly
+//  against req.body, but the frontend (AdminTests.jsx) sends camelCase
+//  ('testName','totalQuestions','examId'...). Since no key in req.body
+//  ever literally matched the whitelist, `updates` was ALWAYS empty —
+//  every field silently failed to save (not just exam_id), while the
+//  request still returned success because the UPDATE ran fine with an
+//  empty (no-op) payload. Fixed by explicitly mapping each camelCase
+//  field to its real snake_case column, same pattern updateQuestion
+//  already used correctly.
+// ─────────────────────────────────────────────────────────
 const updateTest = async (req, res) => {
   try {
     const { testId, testType } = req.params;
@@ -231,9 +249,28 @@ const updateTest = async (req, res) => {
     const table = tableMap[testType];
     if (!table) return res.status(400).json({ success: false, message: `Unknown testType: ${testType}` });
 
-    const allowed = ['test_name','total_questions','duration_minutes','display_order','is_active','description','test_year','test_date','test_number'];
+    const {
+      examId, subjectId, topicId,
+      testName, totalQuestions, durationMinutes, displayOrder,
+      isActive, description, testYear, testDate, testNumber,
+    } = req.body;
+
     const updates = {};
-    Object.entries(req.body).forEach(([k, v]) => { if (allowed.includes(k)) updates[k] = v; });
+    if (examId !== undefined)          updates.exam_id = examId;
+    // subject_id/topic_id aren't real columns on pyq_tests/full_tests —
+    // Supabase silently ignores unknown columns in an update, so this is
+    // safe to include unconditionally regardless of testType.
+    if (subjectId !== undefined)       updates.subject_id = subjectId || null;
+    if (topicId !== undefined)         updates.topic_id = topicId || null;
+    if (testName !== undefined)        updates.test_name = testName;
+    if (totalQuestions !== undefined)  updates.total_questions = Number(totalQuestions);
+    if (durationMinutes !== undefined) updates.duration_minutes = Number(durationMinutes);
+    if (displayOrder !== undefined)    updates.display_order = Number(displayOrder);
+    if (isActive !== undefined)        updates.is_active = Boolean(isActive);
+    if (description !== undefined)     updates.description = description;
+    if (testYear !== undefined)        updates.test_year = Number(testYear);
+    if (testDate !== undefined)        updates.test_date = testDate || null;
+    if (testNumber !== undefined)      updates.test_number = Number(testNumber);
 
     const { data, error } = await supabase.from(table).update(updates).eq('id', testId).select().single();
     if (error) throw error;
@@ -255,6 +292,7 @@ const deleteTest = async (req, res) => {
 
     if (!table) return res.status(400).json({ success: false, message: `Unknown testType: ${testType}` });
 
+    // delete junction rows first, then the test itself
     if (jTable) await supabase.from(jTable).delete().eq(fkCol, testId);
     const { error } = await supabase.from(table).delete().eq('id', testId);
     if (error) throw error;
@@ -266,7 +304,11 @@ const deleteTest = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────
-//  BATCH GENERATOR
+//  BATCH GENERATOR — chunk a subject's (or topic's) PYQ
+//  question pool into 20-question/20-minute subject_wise_tests
+//  or topic_wise_tests rows, sorted oldest→newest by pyq_year.
+//  Additive: existing admin-authored tests are untouched; running
+//  this again only adds batches for questions not yet covered.
 // ─────────────────────────────────────────────────────────
 const BATCH_SIZE = 20;
 const BATCH_DURATION_MINUTES = 20;
@@ -284,6 +326,7 @@ const generateTestBatches = async (req, res) => {
     const junctionTable = testType === 'subject' ? 'subject_wise_test_questions' : 'topic_wise_test_questions';
     const fkColumn = testType === 'subject' ? 'subject_wise_test_id' : 'topic_wise_test_id';
 
+    // Full PYQ pool for this subject/topic, oldest → newest.
     let poolQuery = supabase
       .from('questions')
       .select('id, pyq_year')
@@ -301,6 +344,8 @@ const generateTestBatches = async (req, res) => {
       return res.json({ success: true, batchesCreated: 0, message: 'No PYQ questions found for this selection.' });
     }
 
+    // Skip questions already covered by a previously-generated batch,
+    // so re-running this only fills in newly-added questions.
     const { data: existingBatches, error: existingErr } = await (async () => {
       let q = supabase.from(table).select('id, test_number')
         .eq('exam_id', examId).eq('subject_id', subjectId).like('test_name', 'Batch %');
@@ -357,6 +402,8 @@ const generateTestBatches = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────
 //  QUESTIONS — CRUD against real questions table
+//  options array from frontend: [{text:'...'}, ...] (2-4 items)
+//  maps to option_a/b/c/d + correct_option 'A'/'B'/'C'/'D'
 // ─────────────────────────────────────────────────────────
 const listQuestions = async (req, res) => {
   try {
@@ -525,6 +572,7 @@ const updateQuestion = async (req, res) => {
 const deleteQuestion = async (req, res) => {
   try {
     const { questionId } = req.params;
+    // remove from all junction tables first
     await Promise.all([
       supabase.from('pyq_test_questions').delete().eq('question_id', questionId),
       supabase.from('full_test_questions').delete().eq('question_id', questionId),
@@ -596,6 +644,7 @@ const bulkImportQuestions = async (req, res) => {
     const { data, error } = await supabase.from('questions').insert(rows).select('id');
     if (error) throw error;
 
+    // link to test via junction table if provided
     if (testId && testType && data?.length) {
       const junctionMap = { pyq:'pyq_test_questions', mock:'full_test_questions', subject:'subject_wise_test_questions', topic:'topic_wise_test_questions' };
       const fkMap = { pyq:'pyq_test_id', mock:'full_test_id', subject:'subject_wise_test_id', topic:'topic_wise_test_id' };
@@ -623,6 +672,9 @@ const bulkImportQuestions = async (req, res) => {
 
 // ─────────────────────────────────────────────────────────
 //  PRACTICE BANK — uses questions table with is_pyq=false
+//  Real schema: question_bank_subjects / question_bank_topics
+//  are stat-tracking tables only (easy/medium/hard counts) —
+//  actual questions still live in "questions" table
 // ─────────────────────────────────────────────────────────
 const listPracticeQuestions = async (req, res) => {
   try {
@@ -678,6 +730,7 @@ const listPracticeTopics = async (req, res) => {
     const counts = {};
     (data || []).forEach(q => { if (q.topic_id) counts[q.topic_id] = (counts[q.topic_id] || 0) + 1; });
 
+    // fetch topic names
     const topicIds = Object.keys(counts);
     let topicNames = {};
     if (topicIds.length) {
@@ -692,6 +745,8 @@ const listPracticeTopics = async (req, res) => {
   }
 };
 
+// createPracticeQuestion, updatePracticeQuestion, deletePracticeQuestion
+// reuse createQuestion/updateQuestion/deleteQuestion with isPyq=false
 const createPracticeQuestion = async (req, res) => {
   req.body.isPyq = false;
   return createQuestion(req, res);
@@ -705,7 +760,9 @@ const bulkImportPracticeQuestions = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────
-//  TYPING PASSAGES
+//  TYPING PASSAGES — English & Hindi, PYQ & Extra
+//  Content for typing-test papers (englishtest.jsx / hinditest.jsx),
+//  separate from typing_sessions/typing_history which store RESULTS.
 // ─────────────────────────────────────────────────────────
 const listTypingPassages = async (req, res) => {
   try {
